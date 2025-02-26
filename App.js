@@ -1,20 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useRef } from 'react'
+import { View, Text, TouchableOpacity, Linking } from 'react-native'
+import { RNCamera } from 'react-native-camera'
+import QRCodeScanner from 'react-native-qrcode-scanner'
 
-export default function App() {
+const App = () => {
+  const qrcodeRef = useRef(null)
+  const [link, setLink] = useState("")
+
+  const handleLink = () => {
+    console.log("QR cod: "+ link)
+    Linking.openURL(link).catch(() => {
+      console.log("Houve um erro")
+    })
+
+    qrcodeRef.current.reactivate()
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <QRCodeScanner
+      ref={qrcodeRef}
+      onRead={({ data }) => setLink(data)}
+      flasMode={RNCamera.Constants.FlashMode.off}
+      topContent={
+        <View>
+          <Text>{link}</Text>
+        </View>
+      }
+      bottomContent={
+        <View>
+          <TouchableOpacity 
+            onPress={() => handleLink()}
+            style={{ padding: 12, backgroundColor: "#0277BD", marginTop: 20 }}>
+            <Text style={{ color: "#FFFFFF" }}>Ir para link</Text>
+          </TouchableOpacity>
+        </View>
+      }
+    />
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
